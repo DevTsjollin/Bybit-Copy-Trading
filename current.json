@@ -1,0 +1,93 @@
+[
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.2971",
+    "createdAtE3": "1654783877529"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.3026",
+    "createdAtE3": "1654760075892"
+  },
+  {
+    "side": "Sell",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.2865",
+    "createdAtE3": "1654734354265"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.3158",
+    "createdAtE3": "1654697599996"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.3135",
+    "createdAtE3": "1654683811611"
+  },
+  {
+    "side": "Sell",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.2803",
+    "createdAtE3": "1654586385315"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.3408",
+    "createdAtE3": "1654555135939"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.3662",
+    "createdAtE3": "1654521505001"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.3813",
+    "createdAtE3": "1654095167300"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.4193",
+    "createdAtE3": "1654092525193"
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.4588",
+    "createdAtE3": "1653977716529"
+  },
+  {
+    "side": "Sell",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.2615",
+    "createdAtE3": "1653484015585"
+  },
+  {
+    "side": "Sell",
+    "symbol": "SANDUSDT",
+    "leverage": 2,
+    "publicEntryPrice": "1.2291",
+    "createdAtE3": "1652970620029"
+  }
+]
