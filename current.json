@@ -4,62 +4,8 @@
     "symbol": "SANDUSDT",
     "hisLeverage": 2,
     "leverage": 10,
-    "publicEntryPrice": "1.2971",
-    "createdAtE3": "1654783877529",
-    "firstStart": true
-  },
-  {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.3026",
-    "createdAtE3": "1654760075892",
-    "firstStart": true
-  },
-  {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.3158",
-    "createdAtE3": "1654697599996",
-    "firstStart": true
-  },
-  {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
     "publicEntryPrice": "1.3135",
     "createdAtE3": "1654683811611",
-    "firstStart": true
-  },
-  {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.3408",
-    "createdAtE3": "1654555135939",
-    "firstStart": true
-  },
-  {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.3662",
-    "createdAtE3": "1654521505001",
-    "firstStart": true
-  },
-  {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.3813",
-    "createdAtE3": "1654095167300",
     "firstStart": true
   },
   {
@@ -72,27 +18,9 @@
     "firstStart": true
   },
   {
-    "side": "Buy",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.4588",
-    "createdAtE3": "1653977716529",
-    "firstStart": true
-  },
-  {
     "side": "Sell",
     "symbol": "SANDUSDT",
-    "hisLeverage": 2,
-    "leverage": 10,
-    "publicEntryPrice": "1.2615",
-    "createdAtE3": "1653484015585",
-    "firstStart": true
-  },
-  {
-    "side": "Sell",
-    "symbol": "SANDUSDT",
-    "hisLeverage": 2,
+    "publicLeverage": 2,
     "leverage": 10,
     "publicEntryPrice": "1.2291",
     "createdAtE3": "1652970620029",
@@ -101,10 +29,82 @@
   {
     "side": "Buy",
     "symbol": "SANDUSDT",
-    "hisLeverage": 2,
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.2971",
+    "createdAtE3": "1654783877529",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.3408",
+    "createdAtE3": "1654555135939",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.4588",
+    "createdAtE3": "1653977716529",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
     "leverage": 10,
     "publicEntryPrice": "1.267",
     "createdAtE3": "1654821114045",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.3026",
+    "createdAtE3": "1654760075892",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.3158",
+    "createdAtE3": "1654697599996",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.3662",
+    "createdAtE3": "1654521505001",
+    "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.3813",
+    "createdAtE3": "1654095167300",
+    "firstStart": false
+  },
+  {
+    "side": "Sell",
+    "symbol": "SANDUSDT",
+    "publicLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.2615",
+    "createdAtE3": "1653484015585",
     "firstStart": false
   }
 ]

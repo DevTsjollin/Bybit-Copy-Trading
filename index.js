@@ -85,8 +85,9 @@ async function handleData(publicPositions) {
           .addField('Symbol', `${dataObject.symbol}`, true)
           .addField('Public Entry', `${dataObject.publicEntryPrice}`, true)
           .addField('Entry', `${dataObject.entryPrice}`, true)
-          .addField('Public Leverage', `${dataObject.publicLeverage}x`, true)
           .addField('Size', `${dataObject.size} ($${dataObject.sizeUSDT})`, true)
+          .addField('Public Leverage', `${dataObject.publicLeverage}x`, true)
+          .addField('Leverage', `${config.leverage}x`, true)
           .setColor('#24ae64')
           .setThumbnail('https://i.ibb.co/sHs8C4q/LONG.png')
           .setTimestamp();
@@ -133,8 +134,9 @@ async function handleData(publicPositions) {
           .addField('Symbol', `${dataObject.symbol}`, true)
           .addField('Public Entry', `${dataObject.publicEntryPrice}`, true)
           .addField('Entry', `${dataObject.entryPrice}`, true)
-          .addField('Public Leverage', `${dataObject.publicLeverage}x`, true)
           .addField('Size', `${dataObject.size} ($${dataObject.sizeUSDT})`, true)
+          .addField('Public Leverage', `${dataObject.publicLeverage}x`, true)
+          .addField('Leverage', `${config.leverage}x`, true)
           .setColor('#e04040')
           .setThumbnail('https://i.ibb.co/9sKPgCW/SHORT.png')
           .setTimestamp();
