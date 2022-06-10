@@ -8,8 +8,9 @@
     "APISECRET": ""
   },
   "onlyUSDT": true,
+  "availableBalance": true,
   "entryAmountPercentage": 5,
   "leverage": 10,
-  "firstStart": true,
-  "debug": false
+  "firstStart": false,
+  "debug": true
 }

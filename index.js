@@ -55,7 +55,7 @@ async function handleData(publicPositions) {
       dataObject.firstStart = false;
       if (publicPosition.side == "Buy") {
         var markPrice = await getMarkPrice(publicPosition.symbol);
-        var accountBalance = await getAvailableBalance() *2;
+        var accountBalance = await getBalance() *2;
         var ourAmountUSDT = calcPercentage(accountBalance, config.entryAmountPercentage);
         var ourAmount = makePrecision(ourAmountUSDT / markPrice);
 
@@ -101,7 +101,7 @@ async function handleData(publicPositions) {
         }
       } else {
         var markPrice = await getMarkPrice(publicPosition.symbol);
-        var accountBalance = await getAvailableBalance();
+        var accountBalance = await getBalance();
         var ourAmountUSDT = calcPercentage(accountBalance, config.entryAmountPercentage);
         var ourAmount = makePrecision(ourAmountUSDT / markPrice);
         
@@ -247,10 +247,13 @@ async function handleData(publicPositions) {
   fs.writeFileSync("./current.json", JSON.stringify(ownPositions, null, 2));
   fs.writeFileSync("./logs.json", JSON.stringify(logs, null, 2));
 }
-
-async function getAvailableBalance() {
+async function getBalance() {
   var balance = await client.getWalletBalance({coin: "USDT"});
-  return balance.result.USDT.available_balance;
+  if (config.availableBalance) {
+    return balance.result.USDT.available_balance;
+  } else {
+    return balance.result.USDT.wallet_balance;
+  }
 }
 
 async function getMarkPrice(asset) {
