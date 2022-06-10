@@ -14,21 +14,6 @@ const client = new LinearClient(
 
 var loopIndex = 0;
 
-// openShort();
-// async function openShort() {
-//   var params = {
-//     side: "Sell", 
-//     symbol: "SANDUSDT", 
-//     order_type: "Market", 
-//     qty: 1, 
-//     time_in_force: "GoodTillCancel", 
-//     reduce_only: true, 
-//     close_on_trigger: false
-//   }
-//   var request = await client.placeActiveOrder(params);
-//   console.log(request);
-// }
-
 setInterval(async function () {
   var ts = new Date().getTime();
   const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
@@ -84,13 +69,16 @@ async function handleData(publicPositions) {
           close_on_trigger: false
         }
         if (!config.firstStart) {
+          logs.push(`LONG OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
+
           await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
-          var request = await client.placeActiveOrder(params);
+          if (!config.debug) {
+            var request = await client.placeActiveOrder(params);
+            console.log(request);
+          }
+
           dataObject.size = request.result.qty;
           dataObject.order_id = request.result.order_id;
-        } else {
-          dataObject.firstStart = true;
-          logs.push(`LONG OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
           const embed = new MessageBuilder()
           .setTitle(`Long Opened`)
@@ -105,6 +93,8 @@ async function handleData(publicPositions) {
             embed.setText("@everyone");
           }
           hook.send(embed);
+        } else {
+          dataObject.firstStart = true;
         }
       } else {
         var markPrice = await getMarkPrice(publicPosition.symbol);
@@ -123,13 +113,15 @@ async function handleData(publicPositions) {
         }
 
         if (!config.firstStart) {
+          logs.push(`SHORT OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
+
           await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
-          var request = await client.placeActiveOrder(params);
+          if (!config.debug) {
+            var request = await client.placeActiveOrder(params);
+            console.log(request);
+          }
           dataObject.size = request.result.qty;
           dataObject.order_id = request.result.order_id;
-        } else {
-          dataObject.firstStart = true;
-          logs.push(`SHORT OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
           const embed = new MessageBuilder()
           .setTitle(`Long Opened`)
@@ -144,6 +136,8 @@ async function handleData(publicPositions) {
             embed.setText("@everyone");
           }
           hook.send(embed);
+        } else {
+          dataObject.firstStart = true;
         }
       }
       ownPositions.push(dataObject);
@@ -172,7 +166,10 @@ async function handleData(publicPositions) {
         }
 
         if (!ownPosition.firstStart) {
-          var request = await client.placeActiveOrder(params);  
+          if (!config.debug) {
+            var request = await client.placeActiveOrder(params);
+            console.log(request);
+          }
           logs.push(`LONG CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()
@@ -201,7 +198,10 @@ async function handleData(publicPositions) {
         }
 
         if (!ownPosition.firstStart) {
-          var request = await client.placeActiveOrder(params); 
+          if (!config.debug) {
+            var request = await client.placeActiveOrder(params);
+            console.log(request);
+          }
           logs.push(`SHORT CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()

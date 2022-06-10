@@ -14,5 +14,6 @@
     "entryAmountPercentage": 5,
     "leverage": 10,
 
-    "firstStart": true
+    "firstStart": false,
+    "debug": true
 }
