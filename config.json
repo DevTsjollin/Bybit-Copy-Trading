@@ -10,6 +10,6 @@
   "onlyUSDT": true,
   "entryAmountPercentage": 5,
   "leverage": 10,
-  "firstStart": false,
-  "debug": true
+  "firstStart": true,
+  "debug": false
 }
