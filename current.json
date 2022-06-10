@@ -97,5 +97,14 @@
     "publicEntryPrice": "1.2291",
     "createdAtE3": "1652970620029",
     "firstStart": false
+  },
+  {
+    "side": "Buy",
+    "symbol": "SANDUSDT",
+    "hisLeverage": 2,
+    "leverage": 10,
+    "publicEntryPrice": "1.267",
+    "createdAtE3": "1654821114045",
+    "firstStart": false
   }
 ]

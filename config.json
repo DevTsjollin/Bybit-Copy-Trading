@@ -7,9 +7,6 @@
         "APIKEY": "aaeexr28sFDNrkBLY2",
         "APISECRET": "LrU5jQtzcrBYo9Q3CzQknbYpXARQ02vewtXX"
     },
-    "blacklist": [
-        ""
-    ],
     "onlyUSDT": true,
     "entryAmountPercentage": 5,
     "leverage": 10,

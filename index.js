@@ -33,7 +33,6 @@ async function handleData(publicPositions) {
   for await (const publicPosition of publicPositions) {
     var exchangeCoin = publicPosition.symbol.substring(publicPosition.symbol.length - 4 );      
     if (exchangeCoin != "USDT" && config.onlyUSDT) continue;
-    if (isBlackListed(publicPosition.symbol)) continue;
     if (publicPosition == undefined) continue;
 
     var newPosition = true;
@@ -233,14 +232,7 @@ async function handleData(publicPositions) {
   fs.writeFileSync("./current.json", JSON.stringify(ownPositions, null, 2));
   fs.writeFileSync("./logs.json", JSON.stringify(logs, null, 2));
 }
-function isBlackListed(symbol) {
-  for (const object of config.blacklist) { 
-    if (object == symbol) {
-      return true;
-    }
-  }
-  return false;
-}
+
 async function getAvailableBalance() {
   var balance = await client.getWalletBalance({coin: "USDT"});
   return balance.result.USDT.available_balance;
