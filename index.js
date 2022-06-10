@@ -71,7 +71,7 @@ async function handleData(publicPositions) {
         if (!config.firstStart) {
           logs.push(`LONG OPENED | ${dataObject.symbol} | Public Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
-          await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
+          await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: false, buy_leverage: config.leverage, sell_leverage: config.leverage});
           if (!config.debug) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
@@ -118,7 +118,7 @@ async function handleData(publicPositions) {
         if (!config.firstStart) {
           logs.push(`SHORT OPENED | ${dataObject.symbol} | Public Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
-          await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
+          await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: false, buy_leverage: config.leverage, sell_leverage: config.leverage});
           if (!config.debug) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
