@@ -16,8 +16,8 @@ var loopIndex = 0;
 
 setInterval(async function () {
   var ts = new Date().getTime();
-  // const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
-  const url = "http://localhost:8000"
+  const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
+  // const url = "http://localhost:8000"
   axios.get(url)
   .then(res => {
     var publicPositions = res.data.result.data;
