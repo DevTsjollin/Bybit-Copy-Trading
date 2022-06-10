@@ -47,7 +47,7 @@ async function handleData(publicPositions) {
       var dataObject = {};
       dataObject.side = publicPosition.side;
       dataObject.symbol = publicPosition.symbol;
-      dataObject.hisLeverage = Number(publicPosition.leverageE2) / 100;
+      dataObject.publicLeverage = Number(publicPosition.leverageE2) / 100;
       dataObject.leverage = config.leverage;
       dataObject.publicEntryPrice = publicPosition.entryPrice;
       dataObject.createdAtE3 = publicPosition.createdAtE3;
@@ -68,7 +68,7 @@ async function handleData(publicPositions) {
           close_on_trigger: false
         }
         if (!config.firstStart) {
-          logs.push(`LONG OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
+          logs.push(`LONG OPENED | ${dataObject.symbol} | Public Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
           await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
           if (!config.debug) {
@@ -77,13 +77,16 @@ async function handleData(publicPositions) {
 
             dataObject.size = request.result.qty;
             dataObject.order_id = request.result.order_id;  
+            dataObject.entryPrice = request.result.price;
           }
           const embed = new MessageBuilder()
           .setTitle(`Long Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
           .addField('Symbol', `${dataObject.symbol}`, true)
-          .addField('Entry', `${dataObject.publicEntryPrice}`, true)
-          .addField('Leverage', `${dataObject.leverage}x`, true)
+          .addField('Public Entry', `${dataObject.publicEntryPrice}`, true)
+          .addField('Entry', `${dataObject.entryPrice}`, true)
+          .addField('Public Leverage', `${dataObject.publicLeverage}x`, true)
+          .addField('Size', `${dataObject.size} ($${dataObject.sizeUSDT})`, true)
           .setColor('#24ae64')
           .setThumbnail('https://i.ibb.co/sHs8C4q/LONG.png')
           .setTimestamp();
@@ -111,7 +114,7 @@ async function handleData(publicPositions) {
         }
 
         if (!config.firstStart) {
-          logs.push(`SHORT OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
+          logs.push(`SHORT OPENED | ${dataObject.symbol} | Public Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
           await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
           if (!config.debug) {
@@ -119,15 +122,19 @@ async function handleData(publicPositions) {
             console.log(request);
 
             dataObject.size = request.result.qty;
+            dataObject.sizeUSDT = request.result.qty * request.result.price;
             dataObject.order_id = request.result.order_id;
+            dataObject.entryPrice = request.result.price;
           }
 
           const embed = new MessageBuilder()
           .setTitle(`Short Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
           .addField('Symbol', `${dataObject.symbol}`, true)
-          .addField('Entry', `${dataObject.publicEntryPrice}`, true)
-          .addField('Leverage', `${dataObject.leverage}x`, true)
+          .addField('Public Entry', `${dataObject.publicEntryPrice}`, true)
+          .addField('Entry', `${dataObject.entryPrice}`, true)
+          .addField('Public Leverage', `${dataObject.publicLeverage}x`, true)
+          .addField('Size', `${dataObject.size} ($${dataObject.sizeUSDT})`, true)
           .setColor('#e04040')
           .setThumbnail('https://i.ibb.co/9sKPgCW/SHORT.png')
           .setTimestamp();
@@ -169,7 +176,7 @@ async function handleData(publicPositions) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
           }
-          logs.push(`LONG CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
+          logs.push(`LONG CLOSED | ${ownPosition.symbol} | Public Entry: ${ownPosition.publicEntryPrice} | Entry: ${ownPosition.entryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()
           .setTitle(`Long Closed`)
@@ -204,7 +211,7 @@ async function handleData(publicPositions) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
           }
-          logs.push(`SHORT CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
+          logs.push(`SHORT CLOSED | ${ownPosition.symbol} | Public Entry: ${ownPosition.publicEntryPrice} | Entry: ${ownPosition.entryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()
           .setTitle(`Short Closed`)
