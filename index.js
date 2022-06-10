@@ -16,7 +16,8 @@ var loopIndex = 0;
 
 setInterval(async function () {
   var ts = new Date().getTime();
-  const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
+  // const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
+  const url = "http://localhost:8000"
   axios.get(url)
   .then(res => {
     var publicPositions = res.data.result.data;
@@ -30,13 +31,13 @@ setInterval(async function () {
 async function handleData(publicPositions) {
   var ownPositions = JSON.parse(fs.readFileSync("./current.json"));
   var logs = JSON.parse(fs.readFileSync("./logs.json"));
-  for await (const publicPosition of publicPositions) {
+  for (const publicPosition of publicPositions) {
     var exchangeCoin = publicPosition.symbol.substring(publicPosition.symbol.length - 4 );      
     if (exchangeCoin != "USDT" && config.onlyUSDT) continue;
     if (publicPosition == undefined) continue;
 
     var newPosition = true;
-    for await (const ownPosition of ownPositions) {
+    for (const ownPosition of ownPositions) {
       if (ownPosition == undefined) continue;
       if (JSON.stringify(ownPosition.side) == JSON.stringify(publicPosition.side) && JSON.stringify(ownPosition.symbol) == JSON.stringify(publicPosition.symbol) && JSON.stringify(ownPosition.publicEntryPrice) == JSON.stringify(publicPosition.entryPrice) && JSON.stringify(ownPosition.createdAtE3) == JSON.stringify(publicPosition.createdAtE3)) {
         newPosition = false;
@@ -151,11 +152,11 @@ async function handleData(publicPositions) {
       ownPositions.push(dataObject);
     }
   }
-  for await (const [index, ownPosition] of ownPositions.entries()) {
+  for (const [index, ownPosition] of ownPositions.entries()) {
     if (ownPosition == undefined) continue;
 
     var containsCurrent = false;  
-    for await (const publicPosition of publicPositions) {
+    for (const publicPosition of publicPositions) {
       if (JSON.stringify(ownPosition.side) == JSON.stringify(publicPosition.side) && JSON.stringify(ownPosition.symbol) == JSON.stringify(publicPosition.symbol) && JSON.stringify(ownPosition.publicEntryPrice) == JSON.stringify(publicPosition.entryPrice) && JSON.stringify(ownPosition.createdAtE3) == JSON.stringify(publicPosition.createdAtE3)) {
         containsCurrent = true;
       }
@@ -238,6 +239,11 @@ async function handleData(publicPositions) {
   }
   console.log("Loop completed  #" + loopIndex);
   loopIndex++;
+
+  if (config.firstStart) {
+    config.firstStart = false;
+    fs.writeFileSync("./config.json", JSON.stringify(config, null, 2));
+  }
   fs.writeFileSync("./current.json", JSON.stringify(ownPositions, null, 2));
   fs.writeFileSync("./logs.json", JSON.stringify(logs, null, 2));
 }
