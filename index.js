@@ -75,11 +75,10 @@ async function handleData(publicPositions) {
           if (!config.debug) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
+
+            dataObject.size = request.result.qty;
+            dataObject.order_id = request.result.order_id;  
           }
-
-          dataObject.size = request.result.qty;
-          dataObject.order_id = request.result.order_id;
-
           const embed = new MessageBuilder()
           .setTitle(`Long Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
@@ -119,18 +118,19 @@ async function handleData(publicPositions) {
           if (!config.debug) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
+
+            dataObject.size = request.result.qty;
+            dataObject.order_id = request.result.order_id;
           }
-          dataObject.size = request.result.qty;
-          dataObject.order_id = request.result.order_id;
 
           const embed = new MessageBuilder()
-          .setTitle(`Long Opened`)
+          .setTitle(`Short Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
           .addField('Symbol', `${dataObject.symbol}`, true)
           .addField('Entry', `${dataObject.publicEntryPrice}`, true)
           .addField('Leverage', `${dataObject.leverage}x`, true)
-          .setColor('#24ae64')
-          .setThumbnail('https://i.ibb.co/sHs8C4q/LONG.png')
+          .setColor('#e04040')
+          .setThumbnail('https://i.ibb.co/9sKPgCW/SHORT.png')
           .setTimestamp();
           if (config.everyoneTag) {
             embed.setText("@everyone");
@@ -173,12 +173,15 @@ async function handleData(publicPositions) {
           logs.push(`LONG CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()
-          .setTitle(`Long Opened`)
-          .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
-          .addField('Symbol', `${dataObject.symbol}`, true)
-          .addField('Entry', `${dataObject.publicEntryPrice}`, true)
-          .addField('Leverage', `${dataObject.leverage}x`, true)
-          .setColor('#24ae64')
+          .setTitle(`Long Closed`)
+          .setURL(`https://www.bybit.com/trade/usdt/${ownPosition.symbol}`)
+          .addField('Symbol', `${ownPosition.symbol}`, true)
+          .addField('Entry', `${ownPosition.entryPrice}`, true)
+          .addField('Mark', `${ownPosition.markPrice}`, true)
+          .addField('PNL', `${ownPosition.pnl}`, true)
+          .addField('ROE', `${ownPosition.roe}`, true)
+          .addField('Leverage', `${ownPosition.leverage}x`, true)
+          .setColor('#0000FF')
           .setThumbnail('https://i.ibb.co/sHs8C4q/LONG.png')
           .setTimestamp();
           if (config.everyoneTag) {

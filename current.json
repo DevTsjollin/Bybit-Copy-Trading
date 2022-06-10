@@ -96,6 +96,6 @@
     "leverage": 10,
     "publicEntryPrice": "1.2291",
     "createdAtE3": "1652970620029",
-    "firstStart": true
+    "firstStart": false
   }
 ]
