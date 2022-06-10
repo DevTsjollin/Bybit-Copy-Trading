@@ -12,36 +12,86 @@ const client = new LinearClient(
   true // uselivenet
 );
 
+var loopIndex = 0;
+
+// openShort();
+// async function openShort() {
+//   var params = {
+//     side: "Sell", 
+//     symbol: "SANDUSDT", 
+//     order_type: "Market", 
+//     qty: 1, 
+//     time_in_force: "GoodTillCancel", 
+//     reduce_only: true, 
+//     close_on_trigger: false
+//   }
+//   var request = await client.placeActiveOrder(params);
+//   console.log(request);
+// }
+
 setInterval(async function () {
   var ts = new Date().getTime();
   const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
   axios.get(url)
   .then(res => {
     var publicPositions = res.data.result.data;
-    var ownPositions = JSON.parse(fs.readFileSync("./current.json"));
-    var logs = JSON.parse(fs.readFileSync("./logs.json"));
-    for (const publicPosition of publicPositions) {
-      var exchangeCoin = publicPosition.symbol.substring(publicPosition.symbol.length - 4 );      
-      if (exchangeCoin != "USDT" && config.onlyUSDT) continue;
-      if (isBlackListed(publicPosition.symbol)) continue;
-      if (publicPosition == undefined) continue;
+    handleData(publicPositions);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+}, config.updateDelay);
 
-      var newPosition = true;
-      for (const ownPosition of ownPositions) {
-        if (ownPosition == undefined) continue;
-        if (JSON.stringify(ownPosition.side) == JSON.stringify(publicPosition.side) && JSON.stringify(ownPosition.symbol) == JSON.stringify(publicPosition.symbol) && JSON.stringify(ownPosition.publicEntryPrice) == JSON.stringify(publicPosition.entryPrice) && JSON.stringify(ownPosition.createdAtE3) == JSON.stringify(publicPosition.createdAtE3)) {
-          newPosition = false;
+async function handleData(publicPositions) {
+  var ownPositions = JSON.parse(fs.readFileSync("./current.json"));
+  var logs = JSON.parse(fs.readFileSync("./logs.json"));
+  for await (const publicPosition of publicPositions) {
+    var exchangeCoin = publicPosition.symbol.substring(publicPosition.symbol.length - 4 );      
+    if (exchangeCoin != "USDT" && config.onlyUSDT) continue;
+    if (isBlackListed(publicPosition.symbol)) continue;
+    if (publicPosition == undefined) continue;
+
+    var newPosition = true;
+    for await (const ownPosition of ownPositions) {
+      if (ownPosition == undefined) continue;
+      if (JSON.stringify(ownPosition.side) == JSON.stringify(publicPosition.side) && JSON.stringify(ownPosition.symbol) == JSON.stringify(publicPosition.symbol) && JSON.stringify(ownPosition.publicEntryPrice) == JSON.stringify(publicPosition.entryPrice) && JSON.stringify(ownPosition.createdAtE3) == JSON.stringify(publicPosition.createdAtE3)) {
+        newPosition = false;
+      }
+    }; 
+
+    if (newPosition) {
+      var dataObject = {};
+      dataObject.side = publicPosition.side;
+      dataObject.symbol = publicPosition.symbol;
+      dataObject.hisLeverage = Number(publicPosition.leverageE2) / 100;
+      dataObject.leverage = config.leverage;
+      dataObject.publicEntryPrice = publicPosition.entryPrice;
+      dataObject.createdAtE3 = publicPosition.createdAtE3;
+      dataObject.firstStart = false;
+      if (publicPosition.side == "Buy") {
+        var markPrice = await getMarkPrice(publicPosition.symbol);
+        var accountBalance = await getAvailableBalance() *2;
+        var ourAmountUSDT = calcPercentage(accountBalance, config.entryAmountPercentage);
+        var ourAmount = makePrecision(ourAmountUSDT / markPrice);
+
+        var params = {
+          side: "Buy", 
+          symbol: dataObject.symbol, 
+          order_type: "Market", 
+          qty: ourAmount, 
+          time_in_force: "GoodTillCancel", 
+          reduce_only: false, 
+          close_on_trigger: false
         }
-      }; 
+        if (!config.firstStart) {
+          await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
+          var request = await client.placeActiveOrder(params);
+          dataObject.size = request.result.qty;
+          dataObject.order_id = request.result.order_id;
+        } else {
+          dataObject.firstStart = true;
+          logs.push(`LONG OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
 
-      if (newPosition) {
-        var dataObject = {};
-        dataObject.side = publicPosition.side;
-        dataObject.symbol = publicPosition.symbol;
-        dataObject.leverage = Number(publicPosition.leverageE2) / 100;
-        dataObject.publicEntryPrice = publicPosition.entryPrice;
-        dataObject.createdAtE3 = publicPosition.createdAtE3;
-        if (publicPosition.side == "Buy") {
           const embed = new MessageBuilder()
           .setTitle(`Long Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
@@ -55,59 +105,105 @@ setInterval(async function () {
             embed.setText("@everyone");
           }
           hook.send(embed);
+        }
+      } else {
+        var markPrice = await getMarkPrice(publicPosition.symbol);
+        var accountBalance = await getAvailableBalance();
+        var ourAmountUSDT = calcPercentage(accountBalance, config.entryAmountPercentage);
+        var ourAmount = makePrecision(ourAmountUSDT / markPrice);
+        
+        var params = {
+          side: "Sell", 
+          symbol: dataObject.symbol, 
+          order_type: "Market", 
+          qty: ourAmount, 
+          time_in_force: "GoodTillCancel", 
+          reduce_only: false, 
+          close_on_trigger: false
+        }
 
-          logs.push(`LONG OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`)
+        if (!config.firstStart) {
+          await client.setMarginSwitch({symbol: dataObject.symbol, is_isolated: true, buy_leverage: config.leverage, sell_leverage: config.leverage});
+          var request = await client.placeActiveOrder(params);
+          dataObject.size = request.result.qty;
+          dataObject.order_id = request.result.order_id;
         } else {
+          dataObject.firstStart = true;
+          logs.push(`SHORT OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`);
+
           const embed = new MessageBuilder()
-          .setTitle(`Short Opened`)
+          .setTitle(`Long Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
           .addField('Symbol', `${dataObject.symbol}`, true)
           .addField('Entry', `${dataObject.publicEntryPrice}`, true)
           .addField('Leverage', `${dataObject.leverage}x`, true)
-          .setColor('#e04040')
-          .setThumbnail('https://i.ibb.co/9sKPgCW/SHORT.png')
-          .setTimestamp();
-          if (config.everyoneTag) {
-            embed.setText("@everyone");
-          }
-          hook.send(embed);
-
-          logs.push(`SHORT OPENED | ${dataObject.symbol} | Entry: ${dataObject.publicEntryPrice} | Leverage: ${dataObject.leverage}x`)
-        }
-        ownPositions.push(dataObject);
-      }
-    }
-    for (const [index, ownPosition] of ownPositions.entries()) {
-      if (ownPosition == undefined) continue;
-
-      var containsCurrent = false;  
-      for (const publicPosition of publicPositions) {
-        if (JSON.stringify(ownPosition.side) == JSON.stringify(publicPosition.side) && JSON.stringify(ownPosition.symbol) == JSON.stringify(publicPosition.symbol) && JSON.stringify(ownPosition.publicEntryPrice) == JSON.stringify(publicPosition.entryPrice) && JSON.stringify(ownPosition.createdAtE3) == JSON.stringify(publicPosition.createdAtE3)) {
-          containsCurrent = true;
-        }
-      }
-
-      if (!containsCurrent) {
-        if (ownPosition.side == "Buy") {
-          const embed = new MessageBuilder()
-          .setTitle(`Long Closed`)
-          .setURL(`https://www.bybit.com/trade/usdt/${ownPosition.symbol}`)
-          .addField('Symbol', `${ownPosition.symbol}`, true)
-          .addField('Entry', `${ownPosition.entryPrice}`, true)
-          .addField('Mark', `${ownPosition.markPrice}`, true)
-          .addField('PNL', `${ownPosition.pnl}`, true)
-          .addField('ROE', `${ownPosition.roe}`, true)
-          .addField('Leverage', `${ownPosition.leverage}x`, true)
-          .setColor('#0000FF')
+          .setColor('#24ae64')
           .setThumbnail('https://i.ibb.co/sHs8C4q/LONG.png')
           .setTimestamp();
           if (config.everyoneTag) {
             embed.setText("@everyone");
           }
           hook.send(embed);
+        }
+      }
+      ownPositions.push(dataObject);
+    }
+  }
+  for await (const [index, ownPosition] of ownPositions.entries()) {
+    if (ownPosition == undefined) continue;
 
-          logs.push(`LONG CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`)
-        } else {
+    var containsCurrent = false;  
+    for await (const publicPosition of publicPositions) {
+      if (JSON.stringify(ownPosition.side) == JSON.stringify(publicPosition.side) && JSON.stringify(ownPosition.symbol) == JSON.stringify(publicPosition.symbol) && JSON.stringify(ownPosition.publicEntryPrice) == JSON.stringify(publicPosition.entryPrice) && JSON.stringify(ownPosition.createdAtE3) == JSON.stringify(publicPosition.createdAtE3)) {
+        containsCurrent = true;
+      }
+    }
+
+    if (!containsCurrent) {
+      if (ownPosition.side == "Buy") {
+        var params = {
+          side: "Sell", 
+          symbol: ownPosition.symbol, 
+          order_type: "Market", 
+          qty: ownPosition.size, 
+          time_in_force: "GoodTillCancel", 
+          reduce_only: true, 
+          close_on_trigger: false
+        }
+
+        if (!ownPosition.firstStart) {
+          var request = await client.placeActiveOrder(params);  
+          logs.push(`LONG CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
+
+          const embed = new MessageBuilder()
+          .setTitle(`Long Opened`)
+          .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
+          .addField('Symbol', `${dataObject.symbol}`, true)
+          .addField('Entry', `${dataObject.publicEntryPrice}`, true)
+          .addField('Leverage', `${dataObject.leverage}x`, true)
+          .setColor('#24ae64')
+          .setThumbnail('https://i.ibb.co/sHs8C4q/LONG.png')
+          .setTimestamp();
+          if (config.everyoneTag) {
+            embed.setText("@everyone");
+          }
+          hook.send(embed);
+        }
+      } else {
+        var params = {
+          side: "Buy", 
+          symbol: ownPosition.symbol, 
+          order_type: "Market", 
+          qty: ownPosition.size, 
+          time_in_force: "GoodTillCancel", 
+          reduce_only: true, 
+          close_on_trigger: false
+        }
+
+        if (!ownPosition.firstStart) {
+          var request = await client.placeActiveOrder(params); 
+          logs.push(`SHORT CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`);
+
           const embed = new MessageBuilder()
           .setTitle(`Short Closed`)
           .setURL(`https://www.bybit.com/trade/usdt/${ownPosition.symbol}`)
@@ -124,21 +220,16 @@ setInterval(async function () {
             embed.setText("@everyone");
           }
           hook.send(embed);
-
-          logs.push(`SHORT CLOSED | ${ownPosition.symbol} | Entry: ${ownPosition.publicEntryPrice} | Leverage: ${ownPosition.leverage}x`)
         }
-        ownPositions.splice(index, 1); // verwijder position uit current;
       }
+      ownPositions.splice(index, 1); // verwijder position uit current;
     }
-    fs.writeFileSync("./current.json", JSON.stringify(ownPositions, null, 2));
-    fs.writeFileSync("./logs.json", JSON.stringify(logs, null, 2));
-  })
-  .catch(error => {
-    console.error(error);
-  });
-
-}, config.updateDelay);
-
+  }
+  console.log("Loop completed  #" + loopIndex);
+  loopIndex++;
+  fs.writeFileSync("./current.json", JSON.stringify(ownPositions, null, 2));
+  fs.writeFileSync("./logs.json", JSON.stringify(logs, null, 2));
+}
 function isBlackListed(symbol) {
   for (const object of config.blacklist) { 
     if (object == symbol) {
@@ -146,4 +237,20 @@ function isBlackListed(symbol) {
     }
   }
   return false;
+}
+async function getAvailableBalance() {
+  var balance = await client.getWalletBalance({coin: "USDT"});
+  return balance.result.USDT.available_balance;
+}
+
+async function getMarkPrice(asset) {
+  var request = await client.getTickers({symbol: asset});
+  return request.result[0].mark_price;
+}
+
+function calcPercentage(balance, percentage) {
+  return (Number(balance) / 100) * Number(percentage)
+}
+function makePrecision(quantity) {
+  return Math.ceil(quantity * 100000000) / 100000000;
 }
