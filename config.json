@@ -1,11 +1,11 @@
 {
   "leaderUserId": "23197668",
   "updateDelay": 1000,
-  "discordWebhook": "",
+  "discordWebhook": "https://discord.com/api/webhooks/983343055723716618/2B2WejHUHtIf6UZlSpj_miAjuuxD4b8X-aEKvl_lokIR4jRuzsgfILvE_O8HGYAVRSUA",
   "everyoneTag": false,
   "bybit": {
-    "APIKEY": "",
-    "APISECRET": ""
+    "APIKEY": "aaeexr28sFDNrkBLY2",
+    "APISECRET": "LrU5jQtzcrBYo9Q3CzQknbYpXARQ02vewtXX"
   },
   "onlyUSDT": true,
   "availableBalance": true,

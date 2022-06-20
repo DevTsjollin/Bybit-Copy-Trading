@@ -12,24 +12,27 @@ const client = new LinearClient(
   true // uselivenet
 );
 
+var ownPositions = JSON.parse(fs.readFileSync("./current.json"));
+
 var loopIndex = 0;
 
-setInterval(async function () {
+init();
+function init() {
   var ts = new Date().getTime();
   const url = "https://api2.bybit.com/fapi/beehive/public/v1/common/order/list-detail?" + "leaderUserId=" + config.leaderUserId + "&timeStamp=" + ts;
   // const url = "http://localhost:8000"
-  axios.get(url)
-  .then(res => {
-    var publicPositions = res.data.result.data;
-    handleData(publicPositions);
-  })
-  .catch(error => {
-    console.error(error);
-  });
-}, config.updateDelay);
-
+  setTimeout(() => {
+    axios.get(url)
+    .then(res => {
+      var publicPositions = res.data.result.data;
+      handleData(publicPositions);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+  }, config.updateDelay);
+}
 async function handleData(publicPositions) {
-  var ownPositions = JSON.parse(fs.readFileSync("./current.json"));
   var logs = JSON.parse(fs.readFileSync("./logs.json"));
   for (const publicPosition of publicPositions) {
     var exchangeCoin = publicPosition.symbol.substring(publicPosition.symbol.length - 4 );      
@@ -53,7 +56,8 @@ async function handleData(publicPositions) {
       dataObject.publicEntryPrice = publicPosition.entryPrice;
       dataObject.createdAtE3 = publicPosition.createdAtE3;
       dataObject.firstStart = false;
-      if (publicPosition.side == "Buy") {
+      if (JSON.stringify(publicPosition.side) == "Buy") {
+        console.log("new long");
         var markPrice = await getMarkPrice(publicPosition.symbol);
         var accountBalance = await getBalance() *2;
         var ourAmountUSDT = calcPercentage(accountBalance, config.entryAmountPercentage);
@@ -80,6 +84,7 @@ async function handleData(publicPositions) {
             dataObject.order_id = request.result.order_id;  
             dataObject.entryPrice = request.result.price;
           }
+          ownPositions.push(dataObject);
           const embed = new MessageBuilder()
           .setTitle(`Long Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
@@ -128,7 +133,7 @@ async function handleData(publicPositions) {
             dataObject.order_id = request.result.order_id;
             dataObject.entryPrice = request.result.price;
           }
-
+          ownPositions.push(dataObject);
           const embed = new MessageBuilder()
           .setTitle(`Short Opened`)
           .setURL(`https://www.bybit.com/trade/usdt/${dataObject.symbol}`)
@@ -149,7 +154,6 @@ async function handleData(publicPositions) {
           dataObject.firstStart = true;
         }
       }
-      ownPositions.push(dataObject);
     }
   }
   for (const [index, ownPosition] of ownPositions.entries()) {
@@ -179,6 +183,7 @@ async function handleData(publicPositions) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
           }
+          ownPositions.splice(index, 1); // verwijder position uit current;
           logs.push(`LONG CLOSED | ${ownPosition.symbol} | Public Entry: ${ownPosition.publicEntryPrice} | Entry: ${ownPosition.entryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()
@@ -214,6 +219,7 @@ async function handleData(publicPositions) {
             var request = await client.placeActiveOrder(params);
             console.log(request);
           }
+          ownPositions.splice(index, 1); // verwijder position uit current;
           logs.push(`SHORT CLOSED | ${ownPosition.symbol} | Public Entry: ${ownPosition.publicEntryPrice} | Entry: ${ownPosition.entryPrice} | Leverage: ${ownPosition.leverage}x`);
 
           const embed = new MessageBuilder()
@@ -234,7 +240,6 @@ async function handleData(publicPositions) {
           hook.send(embed);
         }
       }
-      ownPositions.splice(index, 1); // verwijder position uit current;
     }
   }
   console.log("Loop completed  #" + loopIndex);
@@ -246,7 +251,10 @@ async function handleData(publicPositions) {
   }
   fs.writeFileSync("./current.json", JSON.stringify(ownPositions, null, 2));
   fs.writeFileSync("./logs.json", JSON.stringify(logs, null, 2));
+
+  init();
 }
+
 async function getBalance() {
   var balance = await client.getWalletBalance({coin: "USDT"});
   if (config.availableBalance) {
@@ -265,5 +273,5 @@ function calcPercentage(balance, percentage) {
   return (Number(balance) / 100) * Number(percentage)
 }
 function makePrecision(quantity) {
-  return Math.ceil(quantity * 100000000) / 100000000;
+  return Math.ceil(quantity * 1000) / 1000;
 }
